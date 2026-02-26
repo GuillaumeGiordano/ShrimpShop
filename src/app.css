@@ -1,0 +1,122 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 210 40% 98%;
+    --foreground: 210 40% 8%;
+    --card: 0 0% 100%;
+    --card-foreground: 210 40% 8%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 210 40% 8%;
+    --primary: 199 89% 42%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 210 40% 92%;
+    --secondary-foreground: 210 40% 15%;
+    --muted: 210 40% 94%;
+    --muted-foreground: 210 20% 45%;
+    --accent: 165 60% 40%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 210 30% 88%;
+    --input: 210 30% 88%;
+    --ring: 199 89% 42%;
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: 210 40% 6%;
+    --foreground: 210 40% 96%;
+    --card: 210 40% 9%;
+    --card-foreground: 210 40% 96%;
+    --popover: 210 40% 9%;
+    --popover-foreground: 210 40% 96%;
+    --primary: 199 89% 55%;
+    --primary-foreground: 210 40% 6%;
+    --secondary: 210 40% 15%;
+    --secondary-foreground: 210 40% 90%;
+    --muted: 210 40% 12%;
+    --muted-foreground: 210 20% 60%;
+    --accent: 165 60% 45%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 210 30% 18%;
+    --input: 210 30% 18%;
+    --ring: 199 89% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings:
+      'rlig' 1,
+      'calt' 1;
+  }
+  h1,
+  h2,
+  h3 {
+    @apply font-display;
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-white/10 backdrop-blur-md border border-white/20;
+  }
+  .glass-dark {
+    @apply bg-black/20 backdrop-blur-md border border-white/10;
+  }
+  .text-gradient {
+    @apply bg-gradient-to-r from-aqua-400 to-aqua-600 bg-clip-text text-transparent;
+  }
+  .aqua-glow {
+    box-shadow: 0 0 30px -5px rgba(14, 165, 233, 0.4);
+  }
+  .animate-fade-in {
+    animation: fade-in 0.5s ease-out forwards;
+  }
+}
+
+/* Scrollbar custom */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-muted;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-aqua-400 rounded-full;
+}
+
+/* TipTap editor styles */
+.tiptap-content {
+  @apply prose prose-slate max-w-none dark:prose-invert;
+}
+.tiptap-content h1 {
+  @apply text-3xl font-display font-bold mb-4;
+}
+.tiptap-content h2 {
+  @apply text-2xl font-display font-semibold mb-3;
+}
+.tiptap-content p {
+  @apply mb-4 leading-relaxed;
+}
+.tiptap-content img {
+  @apply rounded-xl mx-auto my-6;
+}
+.tiptap-content ul {
+  @apply list-disc pl-6 mb-4;
+}
+.tiptap-content ol {
+  @apply list-decimal pl-6 mb-4;
+}
+.tiptap-content blockquote {
+  @apply border-l-4 border-aqua-400 pl-4 italic text-muted-foreground my-4;
+}

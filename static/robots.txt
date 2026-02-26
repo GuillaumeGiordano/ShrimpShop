@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /articles/
+Disallow: /faq/
+
+Sitemap: https://shrimpshop.fr/sitemap.xml

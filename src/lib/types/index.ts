@@ -7,13 +7,14 @@ import type {
   ArticleCategory,
   FaqCategory,
   ArticleStatus,
+  OrderStatus,
   Role
 } from '@prisma/client';
 
 // ============================================================
 // Re-exports Prisma types
 // ============================================================
-export type { ArticleCategory, FaqCategory, ArticleStatus, Role };
+export type { ArticleCategory, FaqCategory, ArticleStatus, OrderStatus, Role };
 
 // ============================================================
 // Domain types
@@ -172,4 +173,93 @@ export type FaqFilters = {
 export type UserFilters = {
   search?: string;
   role?: Role;
+} & PaginationParams;
+
+// ============================================================
+// Shop DTOs
+// ============================================================
+
+export type ProductCategoryDTO = {
+  id: string;
+  name: string;
+  slug: string;
+  order: number;
+  createdAt: string;
+};
+
+export type ProductDTO = {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  price: number;
+  stock: number;
+  image: string | null;
+  isActive: boolean;
+  categoryId: string | null;
+  category: ProductCategoryDTO | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type ProductCardDTO = Omit<ProductDTO, 'description'>;
+
+export type CartItemDTO = {
+  id: string;
+  productId: string;
+  quantity: number;
+  product: {
+    name: string;
+    price: number;
+    image: string | null;
+    slug: string;
+    stock: number;
+  };
+};
+
+export type CartDTO = {
+  id: string;
+  userId: string;
+  items: CartItemDTO[];
+  updatedAt: string;
+};
+
+export type OrderItemDTO = {
+  id: string;
+  productId: string;
+  quantity: number;
+  price: number;
+  product: { name: string };
+};
+
+export type OrderDTO = {
+  id: string;
+  userId: string | null;
+  email: string;
+  total: number;
+  status: OrderStatus;
+  stripeId: string | null;
+  items: OrderItemDTO[];
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type LocalCartItem = {
+  productId: string;
+  name: string;
+  price: number;
+  quantity: number;
+  image: string | null;
+  slug: string;
+};
+
+export type ProductFilters = {
+  categoryId?: string;
+  search?: string;
+  isActive?: boolean;
+} & PaginationParams;
+
+export type OrderFilters = {
+  status?: OrderStatus;
+  search?: string;
 } & PaginationParams;

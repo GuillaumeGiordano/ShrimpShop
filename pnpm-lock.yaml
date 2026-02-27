@@ -71,6 +71,9 @@ importers:
       mode-watcher:
         specifier: ^0.5.0
         version: 0.5.1(svelte@5.53.5)
+      stripe:
+        specifier: ^20.4.0
+        version: 20.4.0(@types/node@22.19.12)
       svelte-sonner:
         specifier: ^0.3.28
         version: 0.3.28(svelte@5.53.5)
@@ -2303,6 +2306,15 @@ packages:
     resolution: {integrity: sha512-6fPc+R4ihwqP6N/aIv2f1gMH8lOVtWQHoqC4yK6oSDVVocumAsfCqjkXnqiYMhmMwS/mEHLp7Vehlt3ql6lEig==}
     engines: {node: '>=8'}
 
+  stripe@20.4.0:
+    resolution: {integrity: sha512-F/aN1IQ9vHmlyLNi3DkiIbyzQb6gyBG0uYFd/VrEVQSc9BLtlgknPUx0EvzZdBMRLFuRaPFIFd7Mxwtg7Pbwzw==}
+    engines: {node: '>=16'}
+    peerDependencies:
+      '@types/node': '>=16'
+    peerDependenciesMeta:
+      '@types/node':
+        optional: true
+
   style-to-object@1.0.14:
     resolution: {integrity: sha512-LIN7rULI0jBscWQYaSswptyderlarFkjQ+t79nzty8tcIAceVomEVlLzH5VP4Cmsv6MtKhs7qaAiwlcp+Mgaxw==}
 
@@ -4488,6 +4500,10 @@ snapshots:
   source-map-js@1.2.1: {}
 
   strip-json-comments@3.1.1: {}
+
+  stripe@20.4.0(@types/node@22.19.12):
+    optionalDependencies:
+      '@types/node': 22.19.12
 
   style-to-object@1.0.14:
     dependencies:

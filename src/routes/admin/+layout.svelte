@@ -10,7 +10,10 @@
     { href: '/admin/articles', label: 'Articles', icon: '📰' },
     { href: '/admin/gallery', label: 'Galerie', icon: '🖼' },
     { href: '/admin/faq', label: 'FAQ', icon: '❓' },
-    { href: '/admin/users', label: 'Utilisateurs', icon: '👤' }
+    { href: '/admin/users', label: 'Utilisateurs', icon: '👤' },
+    { href: '/admin/shop/products', label: 'Produits', icon: '🛒' },
+    { href: '/admin/shop/categories', label: 'Catégories shop', icon: '🏷️' },
+    { href: '/admin/shop/orders', label: 'Commandes', icon: '📋' }
   ];
 
   let sidebarOpen = $state(false);

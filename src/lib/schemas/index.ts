@@ -144,11 +144,53 @@ export const userFiltersSchema = z.object({
 // ============================================================
 
 export const uploadSchema = z.object({
-  bucket: z.enum(['articles', 'gallery']),
+  bucket: z.enum(['articles', 'gallery', 'products']),
   file: z.instanceof(File).refine((f) => f.size <= 5 * 1024 * 1024, 'Fichier trop lourd (max 5Mo)').refine(
     (f) => ['image/jpeg', 'image/png', 'image/webp', 'image/avif'].includes(f.type),
     'Format invalide (jpeg, png, webp, avif uniquement)'
   )
+});
+
+// ============================================================
+// Shop Schemas
+// ============================================================
+
+export const createProductCategorySchema = z.object({
+  name: z.string().min(1, 'Nom requis').max(100),
+  slug: z.string().min(1, 'Slug requis').max(100).regex(/^[a-z0-9-]+$/, 'Slug invalide (lettres, chiffres, tirets)'),
+  order: z.coerce.number().int().default(0)
+});
+
+export const updateProductCategorySchema = createProductCategorySchema.partial();
+
+export const createProductSchema = z.object({
+  name: z.string().min(2, 'Nom requis').max(200),
+  slug: z.string().min(2, 'Slug requis').max(200).regex(/^[a-z0-9-]+$/, 'Slug invalide (lettres, chiffres, tirets)'),
+  description: z.string().min(10, 'Description trop courte'),
+  price: z.coerce.number().positive('Prix invalide'),
+  stock: z.coerce.number().int().min(0, 'Stock invalide'),
+  image: z.string().url('URL invalide').optional().or(z.literal('')),
+  isActive: z.coerce.boolean().default(true),
+  categoryId: z.string().optional().or(z.literal(''))
+});
+
+export const updateProductSchema = createProductSchema.partial();
+
+export const cartItemSchema = z.object({
+  productId: z.string(),
+  quantity: z.coerce.number().int().positive().max(99)
+});
+
+export const checkoutSchema = z.object({
+  items: z
+    .array(
+      z.object({
+        productId: z.string(),
+        quantity: z.coerce.number().int().positive()
+      })
+    )
+    .min(1, 'Panier vide'),
+  email: z.string().email('Email invalide').optional()
 });
 
 // ============================================================
@@ -168,3 +210,9 @@ export type UpdateFaqInput = z.infer<typeof updateFaqSchema>;
 export type FaqFiltersInput = z.infer<typeof faqFiltersSchema>;
 export type UpdateUserRoleInput = z.infer<typeof updateUserRoleSchema>;
 export type UserFiltersInput = z.infer<typeof userFiltersSchema>;
+export type CreateProductCategoryInput = z.infer<typeof createProductCategorySchema>;
+export type UpdateProductCategoryInput = z.infer<typeof updateProductCategorySchema>;
+export type CreateProductInput = z.infer<typeof createProductSchema>;
+export type UpdateProductInput = z.infer<typeof updateProductSchema>;
+export type CartItemInput = z.infer<typeof cartItemSchema>;
+export type CheckoutInput = z.infer<typeof checkoutSchema>;

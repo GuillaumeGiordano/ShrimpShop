@@ -15,7 +15,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
     throw error(400, 'Fichier manquant');
   }
 
-  if (!['articles', 'gallery'].includes(bucket)) {
+  if (!['articles', 'gallery', 'products'].includes(bucket)) {
     throw error(400, 'Bucket invalide');
   }
 

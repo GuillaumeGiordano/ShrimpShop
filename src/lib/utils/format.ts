@@ -61,3 +61,22 @@ export function truncate(text: string, maxLength: number): string {
   if (text.length <= maxLength) return text;
   return text.slice(0, maxLength).trim() + '...';
 }
+
+/**
+ * Formate un prix en euros (fr-FR)
+ */
+export function formatPrice(price: number): string {
+  return new Intl.NumberFormat('fr-FR', {
+    style: 'currency',
+    currency: 'EUR'
+  }).format(price);
+}
+
+/**
+ * Labels des statuts de commande
+ */
+export const ORDER_STATUS_LABELS: Record<string, string> = {
+  PENDING: 'En attente',
+  PAID: 'Payé',
+  CANCELLED: 'Annulé'
+};

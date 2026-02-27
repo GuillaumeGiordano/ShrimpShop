@@ -5,6 +5,7 @@ import { loginSchema } from '$lib/schemas';
 export const load: PageServerLoad = async ({ url }) => {
   return {
     redirectTo: url.searchParams.get('redirectTo') ?? '/articles',
+    error: url.searchParams.get('error'),
     meta: { title: 'Connexion' }
   };
 };

@@ -4,6 +4,13 @@
 
   let { form }: { form: ActionData } = $props();
   let loading = $state(false);
+
+  // Helper pour accéder aux erreurs sans erreurs TypeScript dues au type union
+  function fieldError(field: string): string | undefined {
+    if (!form || !('errors' in form) || !form.errors) return undefined;
+    const errs = form.errors as Record<string, string[] | undefined>;
+    return errs[field]?.[0];
+  }
 </script>
 
 <svelte:head>
@@ -71,10 +78,10 @@
               required
               placeholder="Jean Dupont"
               class="w-full rounded-xl border border-input bg-background px-4 py-2.5 text-sm outline-none transition focus:ring-2 focus:ring-ring"
-              class:border-destructive={form?.errors?.name}
+              class:border-destructive={fieldError('name')}
             />
-            {#if form?.errors?.name}
-              <p class="mt-1 text-xs text-destructive">{form.errors.name[0]}</p>
+            {#if fieldError('name')}
+              <p class="mt-1 text-xs text-destructive">{fieldError('name')}</p>
             {/if}
           </div>
 
@@ -87,10 +94,10 @@
               required
               placeholder="votre@email.com"
               class="w-full rounded-xl border border-input bg-background px-4 py-2.5 text-sm outline-none transition focus:ring-2 focus:ring-ring"
-              class:border-destructive={form?.errors?.email}
+              class:border-destructive={fieldError('email')}
             />
-            {#if form?.errors?.email}
-              <p class="mt-1 text-xs text-destructive">{form.errors.email[0]}</p>
+            {#if fieldError('email')}
+              <p class="mt-1 text-xs text-destructive">{fieldError('email')}</p>
             {/if}
           </div>
 
@@ -103,10 +110,10 @@
               required
               placeholder="Min. 8 caract. avec maj. et chiffre"
               class="w-full rounded-xl border border-input bg-background px-4 py-2.5 text-sm outline-none transition focus:ring-2 focus:ring-ring"
-              class:border-destructive={form?.errors?.password}
+              class:border-destructive={fieldError('password')}
             />
-            {#if form?.errors?.password}
-              <p class="mt-1 text-xs text-destructive">{form.errors.password[0]}</p>
+            {#if fieldError('password')}
+              <p class="mt-1 text-xs text-destructive">{fieldError('password')}</p>
             {/if}
           </div>
 
@@ -121,10 +128,10 @@
               required
               placeholder="••••••••"
               class="w-full rounded-xl border border-input bg-background px-4 py-2.5 text-sm outline-none transition focus:ring-2 focus:ring-ring"
-              class:border-destructive={form?.errors?.confirmPassword}
+              class:border-destructive={fieldError('confirmPassword')}
             />
-            {#if form?.errors?.confirmPassword}
-              <p class="mt-1 text-xs text-destructive">{form.errors.confirmPassword[0]}</p>
+            {#if fieldError('confirmPassword')}
+              <p class="mt-1 text-xs text-destructive">{fieldError('confirmPassword')}</p>
             {/if}
           </div>
 

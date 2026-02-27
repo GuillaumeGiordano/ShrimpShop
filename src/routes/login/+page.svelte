@@ -20,6 +20,15 @@
         <p class="mt-1 text-sm text-muted-foreground">Connectez-vous à votre espace ShrimpShop</p>
       </div>
 
+      {#if data.error === 'verification_failed'}
+        <div class="mb-6 rounded-2xl bg-red-50 p-4 text-center dark:bg-red-900/20">
+          <p class="font-semibold text-red-700 dark:text-red-400">Lien de vérification invalide</p>
+          <p class="mt-1 text-sm text-red-600 dark:text-red-500">
+            Ce lien a expiré ou a déjà été utilisé. Inscrivez-vous à nouveau pour recevoir un nouveau lien.
+          </p>
+        </div>
+      {/if}
+
       <!-- Google OAuth -->
       <form method="POST" action="?/googleLogin">
         <input type="hidden" name="redirectTo" value={data.redirectTo} />

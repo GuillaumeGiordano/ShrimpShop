@@ -1,14 +1,13 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { registerSchema } from '$lib/schemas';
-import { PUBLIC_APP_URL } from '$env/static/public';
 
 export const load: PageServerLoad = async () => {
   return { meta: { title: 'Inscription' } };
 };
 
 export const actions: Actions = {
-  register: async ({ request, locals }) => {
+  register: async ({ request, locals, url }) => {
     const formData = await request.formData();
     const data = Object.fromEntries(formData);
 
@@ -16,24 +15,30 @@ export const actions: Actions = {
     if (!result.success) {
       return fail(422, {
         success: false,
-        errors: result.error.flatten().fieldErrors
+        errors: result.error.flatten().fieldErrors as Record<string, string[] | undefined>
       });
     }
 
-    const { error } = await locals.supabase.auth.signUp({
+    const { data: signUpData, error } = await locals.supabase.auth.signUp({
       email: result.data.email,
       password: result.data.password,
       options: {
         data: { name: result.data.name },
-        emailRedirectTo: `${PUBLIC_APP_URL}/auth/callback`
+        emailRedirectTo: `${url.origin}/auth/callback`
       }
     });
 
     if (error) {
       return fail(400, {
         success: false,
-        errors: { email: [error.message] }
+        errors: { email: [error.message] } as Record<string, string[] | undefined>
       });
+    }
+
+    // Si la confirmation email est désactivée dans Supabase, l'utilisateur
+    // est immédiatement authentifié — on le redirige directement
+    if (signUpData.session) {
+      throw redirect(303, '/articles');
     }
 
     return {

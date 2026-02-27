@@ -6,24 +6,35 @@ export const GET: RequestHandler = async ({ url, locals }) => {
   const code = url.searchParams.get('code');
   const redirectTo = url.searchParams.get('redirectTo') ?? '/articles';
 
-  if (code) {
-    const { data, error } = await locals.supabase.auth.exchangeCodeForSession(code);
+  if (!code) {
+    throw redirect(303, '/login?error=missing_code');
+  }
 
-    if (!error && data.user) {
-      // Synchronise l'utilisateur dans notre DB Prisma
-      const name =
-        data.user.user_metadata?.full_name ??
-        data.user.user_metadata?.name ??
-        data.user.email?.split('@')[0] ??
-        'Utilisateur';
+  const { data, error } = await locals.supabase.auth.exchangeCodeForSession(code);
 
-      await upsertUser({
-        supabaseId: data.user.id,
-        name,
-        email: data.user.email!,
-        avatarUrl: data.user.user_metadata?.avatar_url
-      });
-    }
+  if (error || !data.user) {
+    // Code expiré, déjà utilisé, ou vérificateur PKCE manquant
+    console.error('[auth/callback] exchangeCodeForSession error:', error?.message);
+    throw redirect(303, `/login?error=verification_failed`);
+  }
+
+  // Synchronise l'utilisateur dans notre DB Prisma
+  try {
+    const name =
+      data.user.user_metadata?.full_name ??
+      data.user.user_metadata?.name ??
+      data.user.email?.split('@')[0] ??
+      'Utilisateur';
+
+    await upsertUser({
+      supabaseId: data.user.id,
+      name,
+      email: data.user.email!,
+      avatarUrl: data.user.user_metadata?.avatar_url
+    });
+  } catch (e) {
+    console.error('[auth/callback] upsertUser error:', e);
+    // La session est établie même si la sync DB échoue — on continue
   }
 
   throw redirect(303, redirectTo);

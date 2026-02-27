@@ -1,8 +1,9 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { updateNameSchema, updatePasswordSchema } from '$schemas';
-import { getUserBySupabaseId, updateUserName } from '$lib/services/user.service';
+import { getUserBySupabaseId, updateUserName, updateUserAvatar } from '$lib/services/user.service';
 import { getOrdersByUserId } from '$lib/services/order.service';
+import { uploadImage, deleteImage, extractStoragePath, StorageError } from '$server/storage';
 
 export const load: PageServerLoad = async ({ locals }) => {
   const prismaUser = await getUserBySupabaseId(locals.user!.id);
@@ -15,6 +16,39 @@ export const load: PageServerLoad = async ({ locals }) => {
 };
 
 export const actions: Actions = {
+  updateAvatar: async ({ request, locals }) => {
+    const prismaUser = await getUserBySupabaseId(locals.user!.id);
+    if (!prismaUser) return fail(401, { error: 'Non autorisé' });
+
+    const formData = await request.formData();
+    const file = formData.get('avatar') as File | null;
+
+    if (!file || !(file instanceof File) || file.size === 0) {
+      return fail(400, { action: 'avatar', error: 'Fichier manquant' });
+    }
+
+    try {
+      const result = await uploadImage('avatars', file, prismaUser.id);
+
+      // Supprimer l'ancienne photo uniquement si elle est dans notre bucket avatars
+      if (
+        prismaUser.avatarUrl &&
+        prismaUser.avatarUrl.includes('/storage/v1/object/public/avatars/')
+      ) {
+        const oldPath = extractStoragePath(prismaUser.avatarUrl, 'avatars');
+        if (oldPath) await deleteImage('avatars', oldPath).catch(() => {});
+      }
+
+      await updateUserAvatar(prismaUser.id, result.url);
+      return { success: 'avatar' };
+    } catch (err) {
+      if (err instanceof StorageError) {
+        return fail(400, { action: 'avatar', error: err.message });
+      }
+      return fail(500, { action: 'avatar', error: "Erreur lors de l'upload" });
+    }
+  },
+
   updateName: async ({ request, locals }) => {
     const prismaUser = await getUserBySupabaseId(locals.user!.id);
     if (!prismaUser) return fail(401, { error: 'Non autorisé' });

@@ -125,7 +125,7 @@ export const userFiltersSchema = z.object({
 // ============================================================
 
 export const uploadSchema = z.object({
-  bucket: z.enum(['articles', 'gallery', 'products']),
+  bucket: z.enum(['articles', 'gallery', 'products', 'avatars']),
   file: z.instanceof(File).refine((f) => f.size <= 5 * 1024 * 1024, 'Fichier trop lourd (max 5Mo)').refine(
     (f) => ['image/jpeg', 'image/png', 'image/webp', 'image/avif'].includes(f.type),
     'Format invalide (jpeg, png, webp, avif uniquement)'

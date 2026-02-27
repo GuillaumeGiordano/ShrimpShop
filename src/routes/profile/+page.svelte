@@ -8,14 +8,22 @@
 
   let loadingName = $state(false);
   let loadingPassword = $state(false);
+  let loadingAvatar = $state(false);
   let showPassword = $state(false);
   let showConfirm = $state(false);
+  let avatarPreview = $state<string | null>(null);
 
   $effect(() => {
+    if (form?.success === 'avatar') { toast.success('Photo de profil mise à jour'); avatarPreview = null; }
     if (form?.success === 'name') toast.success('Nom mis à jour');
     if (form?.success === 'password') toast.success('Mot de passe mis à jour');
     if (form?.error && !form?.errors) toast.error(form.error);
   });
+
+  function onAvatarChange(e: Event) {
+    const file = (e.target as HTMLInputElement).files?.[0];
+    if (file) avatarPreview = URL.createObjectURL(file);
+  }
 
   function initials(name: string): string {
     return name
@@ -44,22 +52,68 @@
   <section class="mb-6 rounded-2xl border border-border bg-card p-6">
     <h2 class="mb-5 text-lg font-semibold">Informations</h2>
 
-    <div class="mb-6 flex items-center gap-4">
-      <!-- Avatar -->
-      {#if data.user.avatarUrl}
-        <img
-          src={data.user.avatarUrl}
-          alt={data.user.name}
-          class="h-16 w-16 rounded-full object-cover"
+    <div class="mb-6 flex items-start gap-5">
+      <!-- Avatar + upload -->
+      <form
+        method="POST"
+        action="?/updateAvatar"
+        enctype="multipart/form-data"
+        use:enhance={() => {
+          loadingAvatar = true;
+          return async ({ update }) => {
+            loadingAvatar = false;
+            await update();
+          };
+        }}
+        class="flex flex-col items-center gap-2"
+      >
+        <label class="group relative cursor-pointer" for="avatar-input">
+          <div class="relative h-20 w-20 overflow-hidden rounded-full">
+            {#if avatarPreview ?? data.user.avatarUrl}
+              <img
+                src={avatarPreview ?? data.user.avatarUrl}
+                alt={data.user.name}
+                class="h-full w-full object-cover"
+              />
+            {:else}
+              <div class="flex h-full w-full items-center justify-center bg-primary text-xl font-bold text-primary-foreground">
+                {initials(data.user.name)}
+              </div>
+            {/if}
+            <!-- Overlay appareil photo -->
+            <div class="absolute inset-0 flex items-center justify-center rounded-full bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
+              <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </div>
+          </div>
+        </label>
+        <input
+          id="avatar-input"
+          name="avatar"
+          type="file"
+          accept="image/jpeg,image/png,image/webp,image/avif"
+          class="sr-only"
+          onchange={onAvatarChange}
         />
-      {:else}
-        <div
-          class="flex h-16 w-16 items-center justify-center rounded-full bg-primary text-lg font-bold text-primary-foreground"
-        >
-          {initials(data.user.name)}
-        </div>
-      {/if}
-      <div>
+        {#if avatarPreview}
+          <button
+            type="submit"
+            disabled={loadingAvatar}
+            class="rounded-lg bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground transition hover:bg-primary/90 disabled:opacity-60"
+          >
+            {loadingAvatar ? '...' : 'Enregistrer'}
+          </button>
+        {:else}
+          <span class="text-xs text-muted-foreground">Modifier</span>
+        {/if}
+        {#if form?.action === 'avatar' && form?.error}
+          <p class="text-xs text-destructive">{form.error}</p>
+        {/if}
+      </form>
+
+      <div class="pt-1">
         <p class="font-semibold">{data.user.name}</p>
         <p class="text-sm text-muted-foreground">{data.user.email}</p>
         <span

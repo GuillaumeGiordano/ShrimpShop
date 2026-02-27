@@ -97,6 +97,13 @@ export async function upsertUser(data: {
   return toDTO(user);
 }
 
+export async function updateUserAvatar(id: string, avatarUrl: string): Promise<UserDTO> {
+  const existing = await db.user.findUnique({ where: { id } });
+  if (!existing) throw new NotFoundError('Utilisateur');
+  const user = await db.user.update({ where: { id }, data: { avatarUrl } });
+  return toDTO(user);
+}
+
 export async function updateUserName(id: string, name: string): Promise<UserDTO> {
   const existing = await db.user.findUnique({ where: { id } });
   if (!existing) throw new NotFoundError('Utilisateur');

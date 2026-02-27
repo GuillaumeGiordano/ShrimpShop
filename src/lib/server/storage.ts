@@ -30,8 +30,16 @@ export async function uploadImage(
     throw new StorageError(`Fichier trop lourd: ${(file.size / 1024 / 1024).toFixed(2)}Mo (max 5Mo)`);
   }
 
-  // Génération d'un nom unique en .webp
-  const baseName = file.name.replace(/\.[^.]+$/, '');
+  // Génération d'un nom unique en .webp (sanitisation des caractères invalides)
+  const baseName = file.name
+    .replace(/\.[^.]+$/, '')           // supprime l'extension
+    .normalize('NFD')                  // décompose les accents
+    .replace(/[\u0300-\u036f]/g, '')   // supprime les diacritiques
+    .replace(/[^a-zA-Z0-9-]/g, '-')   // remplace les caractères invalides par -
+    .replace(/-+/g, '-')              // fusionne les tirets consécutifs
+    .replace(/^-|-$/g, '')            // supprime les tirets en début/fin
+    .toLowerCase()
+    .slice(0, 50) || 'image';
   const uniqueName = `${Date.now()}-${Math.random().toString(36).slice(2)}-${baseName}.webp`;
   const path = folder ? `${folder}/${uniqueName}` : uniqueName;
 

@@ -1,6 +1,6 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { stripe } from '$server/stripe';
+import { getStripe } from '$server/stripe';
 import { createOrder } from '$services/order.service';
 import { clearCart } from '$services/cart.service';
 import { db } from '$server/db';
@@ -16,7 +16,7 @@ export const POST: RequestHandler = async ({ request }) => {
 
   let event;
   try {
-    event = stripe.webhooks.constructEvent(body, sig, STRIPE_WEBHOOK_SECRET);
+    event = getStripe().webhooks.constructEvent(body, sig, STRIPE_WEBHOOK_SECRET);
   } catch (err) {
     console.error('Webhook signature verification failed:', err);
     throw error(400, 'Signature invalide');

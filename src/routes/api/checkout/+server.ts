@@ -1,6 +1,6 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { stripe } from '$server/stripe';
+import { getStripe } from '$server/stripe';
 import { db } from '$server/db';
 import { checkoutSchema } from '$schemas';
 import { formatApiError, ValidationError } from '$server/errors';
@@ -41,7 +41,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
     const customerEmail = user?.email ?? parsed.email;
 
-    const session = await stripe.checkout.sessions.create({
+    const session = await getStripe().checkout.sessions.create({
       mode: 'payment',
       line_items: lineItems,
       success_url: `${PUBLIC_APP_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,

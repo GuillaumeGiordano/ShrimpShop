@@ -106,8 +106,21 @@
         />
       </div>
 
-      <!-- Alt text + Ordre -->
+      <!-- Catégorie + Alt text + Ordre -->
       <div class="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label class="mb-1.5 block text-sm font-medium" for="categoryId">Catégorie</label>
+          <select
+            id="categoryId"
+            name="categoryId"
+            class="w-full rounded-xl border border-input bg-background px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-ring"
+          >
+            <option value="" selected={!data.photo.categoryId}>Aucune catégorie</option>
+            {#each data.categories as cat}
+              <option value={cat.id} selected={data.photo.categoryId === cat.id}>{cat.name}</option>
+            {/each}
+          </select>
+        </div>
         <div>
           <label class="mb-1.5 block text-sm font-medium" for="altText">Texte alternatif</label>
           <input
@@ -118,17 +131,19 @@
             class="w-full rounded-xl border border-input bg-background px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-ring"
           />
         </div>
-        <div>
-          <label class="mb-1.5 block text-sm font-medium" for="order">Ordre d'affichage</label>
-          <input
-            id="order"
-            name="order"
-            type="number"
-            min="0"
-            value={data.photo.order}
-            class="w-full rounded-xl border border-input bg-background px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-ring"
-          />
-        </div>
+      </div>
+
+      <!-- Ordre -->
+      <div>
+        <label class="mb-1.5 block text-sm font-medium" for="order">Ordre d'affichage</label>
+        <input
+          id="order"
+          name="order"
+          type="number"
+          min="0"
+          value={data.photo.order}
+          class="w-full rounded-xl border border-input bg-background px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-ring"
+        />
       </div>
 
       <!-- Actions -->

@@ -22,26 +22,6 @@ enum Role {
   ADMIN
 }
 
-enum ArticleCategory {
-  NEOCARIDINA
-  CARIDINA
-  BREEDING
-  WATER_QUALITY
-  DISEASES
-  EQUIPMENT
-  FEEDING
-  GENERAL
-}
-
-enum FaqCategory {
-  GENERAL
-  SHIPPING
-  CARE
-  WATER_PARAMETERS
-  COMPATIBILITY
-  PAYMENT
-}
-
 enum ArticleStatus {
   DRAFT
   PUBLISHED
@@ -63,6 +43,7 @@ model User {
   name          String
   email         String    @unique
   role          Role      @default(USER)
+  enabled       Boolean   @default(true) @map("enabled")
   avatarUrl     String?   @map("avatar_url")
   createdAt     DateTime  @default(now()) @map("created_at")
   updatedAt     DateTime  @updatedAt @map("updated_at")
@@ -71,48 +52,53 @@ model User {
 }
 
 model Article {
-  id          String            @id @default(cuid())
+  id          String           @id @default(cuid())
   title       String
   excerpt     String
-  content     String            @db.Text
-  category    ArticleCategory
-  imageUrl    String?           @map("image_url")
-  status      ArticleStatus     @default(DRAFT)
-  published   Boolean           @default(false)
-  publishedAt DateTime?         @map("published_at")
-  createdAt   DateTime          @default(now()) @map("created_at")
-  updatedAt   DateTime          @updatedAt @map("updated_at")
+  content     String           @db.Text
+  categoryId  String?          @map("category_id")
+  category    ProductCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  imageUrl    String?          @map("image_url")
+  status      ArticleStatus    @default(DRAFT)
+  published   Boolean          @default(false)
+  publishedAt DateTime?        @map("published_at")
+  createdAt   DateTime         @default(now()) @map("created_at")
+  updatedAt   DateTime         @updatedAt @map("updated_at")
 
-  @@index([category])
+  @@index([categoryId])
   @@index([status])
   @@index([published])
   @@map("articles")
 }
 
 model Photo {
-  id          String   @id @default(cuid())
+  id          String           @id @default(cuid())
   title       String
   description String?
-  imageUrl    String   @map("image_url")
-  altText     String?  @map("alt_text")
-  order       Int      @default(0)
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  imageUrl    String           @map("image_url")
+  altText     String?          @map("alt_text")
+  order       Int              @default(0)
+  categoryId  String?          @map("category_id")
+  category    ProductCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  createdAt   DateTime         @default(now()) @map("created_at")
+  updatedAt   DateTime         @updatedAt @map("updated_at")
 
   @@index([order])
+  @@index([categoryId])
   @@map("photos")
 }
 
 model Faq {
-  id        String      @id @default(cuid())
-  category  FaqCategory
-  question  String
-  answer    String      @db.Text
-  order     Int         @default(0)
-  createdAt DateTime    @default(now()) @map("created_at")
-  updatedAt DateTime    @updatedAt @map("updated_at")
+  id         String           @id @default(cuid())
+  categoryId String?          @map("category_id")
+  category   ProductCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  question   String
+  answer     String           @db.Text
+  order      Int              @default(0)
+  createdAt  DateTime         @default(now()) @map("created_at")
+  updatedAt  DateTime         @updatedAt @map("updated_at")
 
-  @@index([category])
+  @@index([categoryId])
   @@index([order])
   @@map("faqs")
 }
@@ -135,6 +121,9 @@ model ProductCategory {
   slug      String    @unique
   order     Int       @default(0)
   products  Product[]
+  articles  Article[]
+  faqs      Faq[]
+  photos    Photo[]
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
 

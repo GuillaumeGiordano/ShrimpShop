@@ -1,22 +1,10 @@
 <script lang="ts">
-  import { formatDate, ARTICLE_CATEGORY_LABELS } from '$lib/utils/format';
+  import { formatDate } from '$lib/utils/format';
   import type { ArticleCardDTO } from '$types';
 
   let { article }: { article: ArticleCardDTO } = $props();
 
-  const categoryColors: Record<string, string> = {
-    NEOCARIDINA: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
-    CARIDINA: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
-    BREEDING: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
-    WATER_QUALITY: 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300',
-    DISEASES: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300',
-    EQUIPMENT: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300',
-    FEEDING: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300',
-    GENERAL: 'bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-300'
-  };
-
-  const categoryLabel = $derived(ARTICLE_CATEGORY_LABELS[article.category] ?? article.category);
-  const badge = $derived(categoryColors[article.category] ?? categoryColors['GENERAL']);
+  const badgeClass = 'bg-aqua-100 text-aqua-700 dark:bg-aqua-900/30 dark:text-aqua-300';
 </script>
 
 <article
@@ -38,11 +26,13 @@
     {/if}
 
     <!-- Badge catégorie -->
-    <span
-      class="absolute left-3 top-3 rounded-full px-3 py-1 text-xs font-semibold {badge}"
-    >
-      {categoryLabel}
-    </span>
+    {#if article.category}
+      <span
+        class="absolute left-3 top-3 rounded-full px-3 py-1 text-xs font-semibold {badgeClass}"
+      >
+        {article.category.name}
+      </span>
+    {/if}
   </div>
 
   <!-- Content -->

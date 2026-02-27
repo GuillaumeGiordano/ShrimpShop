@@ -1,3 +1,4 @@
+import sharp from 'sharp';
 import { supabaseAdmin } from './supabase';
 import type { UploadResult } from '$types';
 
@@ -29,16 +30,19 @@ export async function uploadImage(
     throw new StorageError(`Fichier trop lourd: ${(file.size / 1024 / 1024).toFixed(2)}Mo (max 5Mo)`);
   }
 
-  // Génération d'un nom unique
-  const ext = file.name.split('.').pop() ?? 'jpg';
-  const uniqueName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+  // Génération d'un nom unique en .webp
+  const baseName = file.name.replace(/\.[^.]+$/, '');
+  const uniqueName = `${Date.now()}-${Math.random().toString(36).slice(2)}-${baseName}.webp`;
   const path = folder ? `${folder}/${uniqueName}` : uniqueName;
 
   const arrayBuffer = await file.arrayBuffer();
-  const buffer = new Uint8Array(arrayBuffer);
+  const webpBuffer = await sharp(Buffer.from(arrayBuffer))
+    .resize({ width: 1200, withoutEnlargement: true })
+    .webp({ quality: 80 })
+    .toBuffer();
 
-  const { error } = await supabaseAdmin.storage.from(bucket).upload(path, buffer, {
-    contentType: file.type,
+  const { error } = await supabaseAdmin.storage.from(bucket).upload(path, webpBuffer, {
+    contentType: 'image/webp',
     cacheControl: '3600',
     upsert: false
   });
@@ -72,6 +76,7 @@ export async function deleteImage(bucket: string, path: string): Promise<void> {
  * Extrait le path depuis une URL publique Supabase
  */
 export function extractStoragePath(publicUrl: string, bucket: string): string {
-  const urlParts = publicUrl.split(`/storage/v1/object/public/${bucket}/`);
+  const urlWithoutParams = publicUrl.split('?')[0];
+  const urlParts = urlWithoutParams.split(`/storage/v1/object/public/${bucket}/`);
   return urlParts[1] ?? '';
 }

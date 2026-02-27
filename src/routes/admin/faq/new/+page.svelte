@@ -1,12 +1,9 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
-  import { FAQ_CATEGORY_LABELS } from '$lib/utils/format';
-  import type { ActionData } from './$types';
+  import type { PageData, ActionData } from './$types';
 
-  let { form }: { form: ActionData } = $props();
+  let { data, form }: { data: PageData; form: ActionData } = $props();
   let loading = $state(false);
-
-  const categories = Object.entries(FAQ_CATEGORY_LABELS);
 </script>
 
 <svelte:head>
@@ -35,19 +32,20 @@
       <!-- Catégorie + Ordre -->
       <div class="grid gap-4 sm:grid-cols-2">
         <div>
-          <label class="mb-1.5 block text-sm font-medium" for="category">Catégorie *</label>
+          <label class="mb-1.5 block text-sm font-medium" for="categoryId">Catégorie</label>
           <select
-            id="category"
-            name="category"
+            id="categoryId"
+            name="categoryId"
             class="w-full rounded-xl border border-input bg-background px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-ring"
-            class:border-destructive={form?.errors?.category}
+            class:border-destructive={form?.errors?.categoryId}
           >
-            {#each categories as [value, label]}
-              <option {value} selected={form?.values?.category === value}>{label}</option>
+            <option value="">Aucune catégorie</option>
+            {#each data.categories as cat}
+              <option value={cat.id} selected={form?.values?.categoryId === cat.id}>{cat.name}</option>
             {/each}
           </select>
-          {#if form?.errors?.category}
-            <p class="mt-1 text-xs text-destructive">{form.errors.category[0]}</p>
+          {#if form?.errors?.categoryId}
+            <p class="mt-1 text-xs text-destructive">{form.errors.categoryId[0]}</p>
           {/if}
         </div>
 

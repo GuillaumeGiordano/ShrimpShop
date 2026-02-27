@@ -1,9 +1,9 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
   import ArticleForm from '$lib/components/admin/ArticleForm.svelte';
-  import type { ActionData } from './$types';
+  import type { PageData, ActionData } from './$types';
 
-  let { form }: { form: ActionData } = $props();
+  let { data, form }: { data: PageData; form: ActionData } = $props();
   let loading = $state(false);
 </script>
 
@@ -27,5 +27,5 @@
     };
   }}
 >
-  <ArticleForm errors={form?.errors} values={form?.values} {loading} />
+  <ArticleForm errors={form?.errors} values={form?.values} {loading} categories={data.categories} />
 </form>

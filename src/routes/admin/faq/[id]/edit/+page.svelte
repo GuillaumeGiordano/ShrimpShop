@@ -1,18 +1,17 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
   import { toast } from 'svelte-sonner';
-  import { FAQ_CATEGORY_LABELS } from '$lib/utils/format';
   import type { PageData, ActionData } from './$types';
 
   let { data, form }: { data: PageData; form: ActionData } = $props();
   let loading = $state(false);
 
+  type FormErrors = Record<string, string[] | undefined> | undefined;
+
   $effect(() => {
     if (form?.success) toast.success('FAQ mise à jour !');
     if (form?.errors) toast.error('Erreur dans le formulaire');
   });
-
-  const categories = Object.entries(FAQ_CATEGORY_LABELS);
 </script>
 
 <svelte:head>
@@ -43,14 +42,15 @@
       <!-- Catégorie + Ordre -->
       <div class="grid gap-4 sm:grid-cols-2">
         <div>
-          <label class="mb-1.5 block text-sm font-medium" for="category">Catégorie *</label>
+          <label class="mb-1.5 block text-sm font-medium" for="categoryId">Catégorie</label>
           <select
-            id="category"
-            name="category"
+            id="categoryId"
+            name="categoryId"
             class="w-full rounded-xl border border-input bg-background px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-ring"
           >
-            {#each categories as [value, label]}
-              <option {value} selected={data.faq.category === value}>{label}</option>
+            <option value="" selected={!data.faq.categoryId}>Aucune catégorie</option>
+            {#each data.categories as cat}
+              <option value={cat.id} selected={data.faq.categoryId === cat.id}>{cat.name}</option>
             {/each}
           </select>
         </div>
@@ -97,7 +97,7 @@
           class:border-destructive={form?.errors?.answer}
         >{data.faq.answer}</textarea>
         {#if form?.errors?.answer}
-          <p class="mt-1 text-xs text-destructive">{form.errors.answer[0]}</p>
+          <p class="mt-1 text-xs text-destructive">{form?.errors?.answer?.[0]}</p>
         {/if}
       </div>
 

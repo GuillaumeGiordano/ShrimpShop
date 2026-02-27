@@ -6,14 +6,14 @@ import { contactSchema } from '$lib/schemas';
 import { fail } from '@sveltejs/kit';
 
 export const load: PageServerLoad = async () => {
-  const [photosResult, articlesResult] = await Promise.all([
-    getPhotos(),
+  const [photos, articlesResult] = await Promise.all([
+    getPhotos(3),
     getPublishedArticles({ perPage: 3 })
   ]);
 
   return {
-    photos: photosResult.slice(0, 3),
-    articles: articlesResult.data.slice(0, 3),
+    photos,
+    articles: articlesResult.data,
     meta: {
       title: 'ShrimpShop — Crevettes d\'aquarium de qualité',
       description:

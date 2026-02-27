@@ -107,6 +107,15 @@ export async function getOrderById(id: string): Promise<OrderDTO> {
   return toDTO(order);
 }
 
+export async function getOrdersByUserId(userId: string): Promise<OrderDTO[]> {
+  const orders = await db.order.findMany({
+    where: { userId },
+    include: orderInclude,
+    orderBy: { createdAt: 'desc' }
+  });
+  return orders.map(toDTO);
+}
+
 export async function updateOrderStatus(id: string, status: OrderStatus): Promise<OrderDTO> {
   const existing = await db.order.findUnique({ where: { id } });
   if (!existing) throw new NotFoundError('Commande');

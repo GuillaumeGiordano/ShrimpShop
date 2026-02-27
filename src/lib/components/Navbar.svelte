@@ -28,7 +28,8 @@
 
   const privateLinks = [
     { href: '/articles', label: 'Articles' },
-    { href: '/faq', label: 'FAQ' }
+    { href: '/faq', label: 'FAQ' },
+    { href: '/profile', label: 'Mon profil' }
   ];
 
   function isActive(href: string) {

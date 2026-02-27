@@ -1,13 +1,17 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { getPhotoById, updatePhoto, deletePhoto } from '$lib/services/photo.service';
+import { getProductCategories } from '$lib/services/product-category.service';
 import { updatePhotoSchema } from '$lib/schemas';
 import { throwKitError } from '$server/errors';
 
 export const load: PageServerLoad = async ({ params }) => {
   try {
-    const photo = await getPhotoById(params.id);
-    return { photo };
+    const [photo, categories] = await Promise.all([
+      getPhotoById(params.id),
+      getProductCategories()
+    ]);
+    return { photo, categories };
   } catch (err) {
     throwKitError(err);
   }
@@ -26,7 +30,10 @@ export const actions: Actions = {
     }
 
     try {
-      await updatePhoto(params.id, result.data);
+      await updatePhoto(params.id, {
+        ...result.data,
+        categoryId: result.data.categoryId !== undefined ? (result.data.categoryId || undefined) : undefined
+      });
       return { success: true };
     } catch (err) {
       if (err instanceof Error) {

@@ -9,6 +9,7 @@ function toDTO(user: {
   name: string;
   email: string;
   role: Role;
+  enabled: boolean;
   avatarUrl: string | null;
   createdAt: Date;
 }): UserDTO {
@@ -63,6 +64,16 @@ export async function getUserBySupabaseId(supabaseId: string): Promise<UserDTO |
   return toDTO(user);
 }
 
+export async function getUserRoleBySupabaseId(
+  supabaseId: string
+): Promise<{ role: Role; enabled: boolean } | null> {
+  const user = await db.user.findUnique({
+    where: { supabaseId },
+    select: { role: true, enabled: true }
+  });
+  return user ?? null;
+}
+
 export async function upsertUser(data: {
   supabaseId: string;
   name: string;
@@ -86,10 +97,24 @@ export async function upsertUser(data: {
   return toDTO(user);
 }
 
+export async function updateUserName(id: string, name: string): Promise<UserDTO> {
+  const existing = await db.user.findUnique({ where: { id } });
+  if (!existing) throw new NotFoundError('Utilisateur');
+  const user = await db.user.update({ where: { id }, data: { name } });
+  return toDTO(user);
+}
+
 export async function updateUserRole(id: string, role: Role): Promise<UserDTO> {
   const existing = await db.user.findUnique({ where: { id } });
   if (!existing) throw new NotFoundError('Utilisateur');
   const user = await db.user.update({ where: { id }, data: { role } });
+  return toDTO(user);
+}
+
+export async function updateUserEnabled(id: string, enabled: boolean): Promise<UserDTO> {
+  const existing = await db.user.findUnique({ where: { id } });
+  if (!existing) throw new NotFoundError('Utilisateur');
+  const user = await db.user.update({ where: { id }, data: { enabled } });
   return toDTO(user);
 }
 

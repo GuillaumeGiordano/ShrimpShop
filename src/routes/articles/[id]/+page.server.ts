@@ -5,7 +5,7 @@ import { throwKitError } from '$server/errors';
 export const load: PageServerLoad = async ({ params }) => {
   try {
     const article = await getPublishedArticleById(params.id);
-    const similar = await getSimilarArticles(article.id, article.category);
+    const similar = await getSimilarArticles(article.id, article.categoryId);
 
     return {
       article,

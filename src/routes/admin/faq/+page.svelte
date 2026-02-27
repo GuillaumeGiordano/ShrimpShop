@@ -2,7 +2,6 @@
   import { enhance } from '$app/forms';
   import { page } from '$app/stores';
   import { toast } from 'svelte-sonner';
-  import { FAQ_CATEGORY_LABELS } from '$lib/utils/format';
   import type { PageData, ActionData } from './$types';
 
   let { data, form }: { data: PageData; form: ActionData } = $props();
@@ -38,11 +37,13 @@
     >
       <div class="flex-1 min-w-0">
         <div class="mb-1.5 flex flex-wrap items-center gap-2">
-          <span
-            class="rounded-full bg-aqua-100 px-2.5 py-0.5 text-xs font-semibold text-aqua-700 dark:bg-aqua-900/30 dark:text-aqua-300"
-          >
-            {FAQ_CATEGORY_LABELS[faq.category] ?? faq.category}
-          </span>
+          {#if faq.category}
+            <span
+              class="rounded-full bg-aqua-100 px-2.5 py-0.5 text-xs font-semibold text-aqua-700 dark:bg-aqua-900/30 dark:text-aqua-300"
+            >
+              {faq.category.name}
+            </span>
+          {/if}
           <span class="text-xs text-muted-foreground">Ordre : {faq.order}</span>
         </div>
         <p class="font-medium">{faq.question}</p>

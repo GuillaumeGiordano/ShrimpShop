@@ -99,6 +99,9 @@
         <div>
           <div class="mb-1.5 flex items-center justify-between">
             <label class="text-sm font-medium" for="password">Mot de passe</label>
+            <a href="/forgot-password" class="text-xs text-muted-foreground transition-colors hover:text-primary">
+              Mot de passe oublié ?
+            </a>
           </div>
           <input
             id="password"

@@ -3,7 +3,7 @@
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
   import { toast } from 'svelte-sonner';
-  import { formatDate, ARTICLE_CATEGORY_LABELS } from '$lib/utils/format';
+  import { formatDate } from '$lib/utils/format';
   import type { PageData, ActionData } from './$types';
 
   let { data, form }: { data: PageData; form: ActionData } = $props();
@@ -67,7 +67,7 @@
               </div>
             </td>
             <td class="px-4 py-3 text-muted-foreground">
-              {ARTICLE_CATEGORY_LABELS[article.category] ?? article.category}
+              {article.category?.name ?? '—'}
             </td>
             <td class="px-4 py-3">
               <span

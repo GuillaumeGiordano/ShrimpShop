@@ -1,15 +1,20 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { getArticleById, updateArticle } from '$lib/services/article.service';
+import { getProductCategories } from '$lib/services/product-category.service';
 import { updateArticleSchema } from '$lib/schemas';
 import { sanitizeHtml } from '$lib/utils/sanitize';
 import { throwKitError } from '$server/errors';
 
 export const load: PageServerLoad = async ({ params, url }) => {
   try {
-    const article = await getArticleById(params.id);
+    const [article, categories] = await Promise.all([
+      getArticleById(params.id),
+      getProductCategories()
+    ]);
     return {
       article,
+      categories,
       created: url.searchParams.get('created') === 'true'
     };
   } catch (err) {
@@ -34,6 +39,7 @@ export const actions: Actions = {
       await updateArticle(params.id, {
         ...result.data,
         content: result.data.content ? sanitizeHtml(result.data.content) : undefined,
+        categoryId: result.data.categoryId !== undefined ? (result.data.categoryId || undefined) : undefined,
         imageUrl: result.data.imageUrl || undefined
       });
       return { success: true };

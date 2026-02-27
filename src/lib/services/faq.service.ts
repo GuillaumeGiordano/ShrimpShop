@@ -1,11 +1,24 @@
 import { db } from '$server/db';
 import { NotFoundError } from '$server/errors';
-import type { FaqDTO, PaginatedResponse, FaqFilters } from '$types';
-import type { FaqCategory } from '@prisma/client';
+import type { FaqDTO, PaginatedResponse, FaqFilters, ProductCategoryDTO } from '$types';
+
+type CategoryRow = {
+  id: string;
+  name: string;
+  slug: string;
+  order: number;
+  createdAt: Date;
+} | null;
+
+function serializeCategory(cat: CategoryRow): ProductCategoryDTO | null {
+  if (!cat) return null;
+  return { ...cat, createdAt: cat.createdAt.toISOString() };
+}
 
 function toDTO(faq: {
   id: string;
-  category: FaqCategory;
+  categoryId: string | null;
+  category: CategoryRow;
   question: string;
   answer: string;
   order: number;
@@ -14,16 +27,17 @@ function toDTO(faq: {
 }): FaqDTO {
   return {
     ...faq,
+    category: serializeCategory(faq.category),
     createdAt: faq.createdAt.toISOString()
   };
 }
 
 export async function getFaqs(filters: FaqFilters = {}): Promise<PaginatedResponse<FaqDTO>> {
-  const { page = 1, perPage = 20, category, search } = filters;
+  const { page = 1, perPage = 20, categoryId, search } = filters;
   const skip = (page - 1) * perPage;
 
   const where = {
-    ...(category && { category }),
+    ...(categoryId && { categoryId }),
     ...(search && {
       OR: [
         { question: { contains: search, mode: 'insensitive' as const } },
@@ -36,7 +50,8 @@ export async function getFaqs(filters: FaqFilters = {}): Promise<PaginatedRespon
     db.faq.count({ where }),
     db.faq.findMany({
       where,
-      orderBy: [{ category: 'asc' }, { order: 'asc' }],
+      include: { category: true },
+      orderBy: [{ order: 'asc' }],
       skip,
       take: perPage
     })
@@ -52,25 +67,32 @@ export async function getFaqs(filters: FaqFilters = {}): Promise<PaginatedRespon
 }
 
 export async function getFaqById(id: string): Promise<FaqDTO> {
-  const faq = await db.faq.findUnique({ where: { id } });
+  const faq = await db.faq.findUnique({ where: { id }, include: { category: true } });
   if (!faq) throw new NotFoundError('FAQ');
   return toDTO(faq);
 }
 
 export async function createFaq(data: {
-  category: FaqCategory;
+  categoryId?: string;
   question: string;
   answer: string;
   order?: number;
 }): Promise<FaqDTO> {
-  const faq = await db.faq.create({ data });
+  const { categoryId, ...rest } = data;
+  const faq = await db.faq.create({
+    data: {
+      ...rest,
+      ...(categoryId ? { categoryId } : {})
+    },
+    include: { category: true }
+  });
   return toDTO(faq);
 }
 
 export async function updateFaq(
   id: string,
   data: Partial<{
-    category: FaqCategory;
+    categoryId: string;
     question: string;
     answer: string;
     order: number;
@@ -78,7 +100,15 @@ export async function updateFaq(
 ): Promise<FaqDTO> {
   const existing = await db.faq.findUnique({ where: { id } });
   if (!existing) throw new NotFoundError('FAQ');
-  const faq = await db.faq.update({ where: { id }, data });
+  const { categoryId, ...rest } = data;
+  const faq = await db.faq.update({
+    where: { id },
+    data: {
+      ...rest,
+      ...(categoryId !== undefined ? { categoryId: categoryId || null } : {})
+    },
+    include: { category: true }
+  });
   return toDTO(faq);
 }
 

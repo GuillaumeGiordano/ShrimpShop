@@ -21,32 +21,6 @@ export function formatDateShort(date: string | Date): string {
 }
 
 /**
- * Traduit les catégories d'articles en français
- */
-export const ARTICLE_CATEGORY_LABELS: Record<string, string> = {
-  NEOCARIDINA: 'Neocaridina',
-  CARIDINA: 'Caridina',
-  BREEDING: 'Élevage',
-  WATER_QUALITY: 'Qualité de l\'eau',
-  DISEASES: 'Maladies',
-  EQUIPMENT: 'Équipement',
-  FEEDING: 'Alimentation',
-  GENERAL: 'Général'
-};
-
-/**
- * Traduit les catégories FAQ en français
- */
-export const FAQ_CATEGORY_LABELS: Record<string, string> = {
-  GENERAL: 'Général',
-  SHIPPING: 'Livraison',
-  CARE: 'Entretien',
-  WATER_PARAMETERS: 'Paramètres d\'eau',
-  COMPATIBILITY: 'Compatibilité',
-  PAYMENT: 'Paiement'
-};
-
-/**
  * Traduit les rôles en français
  */
 export const ROLE_LABELS: Record<string, string> = {

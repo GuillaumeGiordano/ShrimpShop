@@ -1,10 +1,12 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { createPhoto } from '$lib/services/photo.service';
+import { getProductCategories } from '$lib/services/product-category.service';
 import { createPhotoSchema } from '$lib/schemas';
 
 export const load: PageServerLoad = async () => {
-  return {};
+  const categories = await getProductCategories();
+  return { categories };
 };
 
 export const actions: Actions = {
@@ -20,7 +22,10 @@ export const actions: Actions = {
       });
     }
 
-    await createPhoto(result.data);
+    await createPhoto({
+      ...result.data,
+      categoryId: result.data.categoryId || undefined
+    });
     throw redirect(303, '/admin/gallery?created=true');
   }
 };

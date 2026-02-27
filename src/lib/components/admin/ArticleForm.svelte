@@ -1,18 +1,19 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
-  import { ARTICLE_CATEGORY_LABELS } from '$lib/utils/format';
-  import type { ArticleDTO } from '$types';
+  import type { ArticleDTO, ProductCategoryDTO } from '$types';
 
   let {
     article,
     errors,
     values,
-    loading = false
+    loading = false,
+    categories = []
   }: {
     article?: ArticleDTO;
     errors?: Record<string, string[]>;
     values?: Record<string, unknown>;
     loading?: boolean;
+    categories?: ProductCategoryDTO[];
   } = $props();
 
   // ── Editor ────────────────────────────────────────────────
@@ -172,8 +173,6 @@
 
   // ── Publication toggle ────────────────────────────────────
   let published = $state(article?.published ?? false);
-
-  const categories = Object.entries(ARTICLE_CATEGORY_LABELS);
 
   // ── Toolbar button helper ─────────────────────────────────
   function tbClass(active: boolean) {
@@ -478,14 +477,15 @@
     <!-- Catégorie -->
     <div class="rounded-2xl border border-border bg-white p-5 dark:bg-slate-900">
       <h3 class="mb-4 font-semibold">Catégorie</h3>
-      <select name="category" value={article?.category ?? 'GENERAL'}
+      <select name="categoryId" value={article?.categoryId ?? ''}
         class="w-full rounded-xl border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
-        class:border-destructive={errors?.category}>
-        {#each categories as [value, label]}
-          <option {value}>{label}</option>
+        class:border-destructive={errors?.categoryId}>
+        <option value="">Aucune catégorie</option>
+        {#each categories as cat}
+          <option value={cat.id}>{cat.name}</option>
         {/each}
       </select>
-      {#if errors?.category}<p class="mt-1 text-xs text-destructive">{errors.category[0]}</p>{/if}
+      {#if errors?.categoryId}<p class="mt-1 text-xs text-destructive">{errors.categoryId[0]}</p>{/if}
     </div>
 
     <!-- Image de couverture -->

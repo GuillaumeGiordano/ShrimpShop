@@ -34,5 +34,5 @@
     };
   }}
 >
-  <ArticleForm article={data.article} errors={form?.errors} {loading} />
+  <ArticleForm article={data.article} errors={form?.errors} {loading} categories={data.categories} />
 </form>

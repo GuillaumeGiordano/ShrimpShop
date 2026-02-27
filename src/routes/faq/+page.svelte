@@ -1,16 +1,9 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
-  import { FAQ_CATEGORY_LABELS } from '$lib/utils/format';
   import type { PageData } from './$types';
-  import type { FaqDTO } from '$types';
 
   let { data }: { data: PageData } = $props();
-
-  const categories = [
-    { value: '', label: 'Toutes' },
-    ...Object.entries(FAQ_CATEGORY_LABELS).map(([value, label]) => ({ value, label }))
-  ];
 
   let openId = $state<string | null>(null);
 
@@ -18,25 +11,12 @@
     openId = openId === id ? null : id;
   }
 
-  function setCategory(cat: string) {
+  function setCategory(categoryId: string) {
     const params = new URLSearchParams($page.url.searchParams);
-    if (cat) params.set('category', cat);
-    else params.delete('category');
+    if (categoryId) params.set('categoryId', categoryId);
+    else params.delete('categoryId');
     goto(`?${params.toString()}`);
   }
-
-  // Grouper les FAQs par catégorie
-  const grouped = $derived(
-    data.faqs.reduce(
-      (acc, faq) => {
-        const key = faq.category;
-        if (!acc[key]) acc[key] = [];
-        acc[key].push(faq);
-        return acc;
-      },
-      {} as Record<string, FaqDTO[]>
-    )
-  );
 </script>
 
 <svelte:head>
@@ -54,15 +34,24 @@
 
   <!-- Filtres catégories -->
   <div class="mb-8 flex flex-wrap justify-center gap-2">
-    {#each categories as cat}
+    <button
+      onclick={() => setCategory('')}
+      class="rounded-full px-4 py-1.5 text-sm font-medium transition-all
+        {(data.filters.categoryId ?? '') === ''
+        ? 'bg-primary text-primary-foreground'
+        : 'border border-border bg-background hover:bg-muted'}"
+    >
+      Toutes
+    </button>
+    {#each data.categories as cat}
       <button
-        onclick={() => setCategory(cat.value)}
+        onclick={() => setCategory(cat.id)}
         class="rounded-full px-4 py-1.5 text-sm font-medium transition-all
-          {(data.filters.category ?? '') === cat.value
+          {data.filters.categoryId === cat.id
           ? 'bg-primary text-primary-foreground'
           : 'border border-border bg-background hover:bg-muted'}"
       >
-        {cat.label}
+        {cat.name}
       </button>
     {/each}
   </div>
@@ -84,11 +73,13 @@
             class="flex w-full items-center justify-between px-6 py-4 text-left"
           >
             <div class="flex items-center gap-3">
-              <span
-                class="shrink-0 rounded-full bg-aqua-100 px-2.5 py-0.5 text-xs font-semibold text-aqua-700 dark:bg-aqua-900/30 dark:text-aqua-300"
-              >
-                {FAQ_CATEGORY_LABELS[faq.category] ?? faq.category}
-              </span>
+              {#if faq.category}
+                <span
+                  class="shrink-0 rounded-full bg-aqua-100 px-2.5 py-0.5 text-xs font-semibold text-aqua-700 dark:bg-aqua-900/30 dark:text-aqua-300"
+                >
+                  {faq.category.name}
+                </span>
+              {/if}
               <span class="font-medium">{faq.question}</span>
             </div>
             <svg

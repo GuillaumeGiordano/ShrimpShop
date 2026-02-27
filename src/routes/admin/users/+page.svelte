@@ -60,6 +60,7 @@
         <tr class="border-b border-border bg-muted/50">
           <th class="px-4 py-3 text-left font-semibold">Utilisateur</th>
           <th class="px-4 py-3 text-left font-semibold">Rôle</th>
+          <th class="px-4 py-3 text-left font-semibold">Accès</th>
           <th class="px-4 py-3 text-left font-semibold">Inscrit le</th>
           <th class="px-4 py-3 text-right font-semibold">Actions</th>
         </tr>
@@ -91,6 +92,22 @@
                   <option value="USER">Utilisateur</option>
                   <option value="ADMIN">Admin</option>
                 </select>
+              </form>
+            </td>
+            <td class="px-4 py-3">
+              <form method="POST" action="?/updateEnabled" use:enhance>
+                <input type="hidden" name="id" value={user.id} />
+                <input type="hidden" name="enabled" value={user.enabled ? 'false' : 'true'} />
+                <button
+                  type="submit"
+                  title={user.enabled ? 'Désactiver' : 'Activer'}
+                  class="relative inline-flex h-5 w-9 items-center rounded-full transition-colors
+                    {user.enabled ? 'bg-green-500' : 'bg-slate-300 dark:bg-slate-600'}"
+                >
+                  <span class="inline-block h-4 w-4 rounded-full bg-white shadow transition-transform
+                    {user.enabled ? 'translate-x-4' : 'translate-x-0.5'}"
+                  ></span>
+                </button>
               </form>
             </td>
             <td class="px-4 py-3 text-muted-foreground">

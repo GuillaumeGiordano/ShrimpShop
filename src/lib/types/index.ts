@@ -4,8 +4,6 @@ import type {
   Photo as PrismaPhoto,
   Faq as PrismaFaq,
   ContactMessage as PrismaContactMessage,
-  ArticleCategory,
-  FaqCategory,
   ArticleStatus,
   OrderStatus,
   Role
@@ -14,7 +12,7 @@ import type {
 // ============================================================
 // Re-exports Prisma types
 // ============================================================
-export type { ArticleCategory, FaqCategory, ArticleStatus, OrderStatus, Role };
+export type { ArticleStatus, OrderStatus, Role };
 
 // ============================================================
 // Domain types
@@ -35,6 +33,7 @@ export type UserDTO = {
   name: string;
   email: string;
   role: Role;
+  enabled: boolean;
   avatarUrl: string | null;
   createdAt: string;
 };
@@ -44,7 +43,8 @@ export type ArticleDTO = {
   title: string;
   excerpt: string;
   content: string;
-  category: ArticleCategory;
+  categoryId: string | null;
+  category: ProductCategoryDTO | null;
   imageUrl: string | null;
   status: ArticleStatus;
   published: boolean;
@@ -62,12 +62,15 @@ export type PhotoDTO = {
   imageUrl: string;
   altText: string | null;
   order: number;
+  categoryId: string | null;
+  category: ProductCategoryDTO | null;
   createdAt: string;
 };
 
 export type FaqDTO = {
   id: string;
-  category: FaqCategory;
+  categoryId: string | null;
+  category: ProductCategoryDTO | null;
   question: string;
   answer: string;
   order: number;
@@ -160,13 +163,13 @@ export type SEOMeta = {
 // ============================================================
 
 export type ArticleFilters = {
-  category?: ArticleCategory;
+  categoryId?: string;
   search?: string;
   published?: boolean;
 } & PaginationParams;
 
 export type FaqFilters = {
-  category?: FaqCategory;
+  categoryId?: string;
   search?: string;
 } & PaginationParams;
 

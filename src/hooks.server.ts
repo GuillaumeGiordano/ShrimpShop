@@ -1,5 +1,5 @@
 import { createSupabaseServerClient } from '$server/supabase';
-import { getUserBySupabaseId } from '$lib/services/user.service';
+import { getUserRoleBySupabaseId } from '$lib/services/user.service';
 import { redirect, type Handle } from '@sveltejs/kit';
 import { sequence } from '@sveltejs/kit/hooks';
 
@@ -7,7 +7,7 @@ import { sequence } from '@sveltejs/kit/hooks';
 // Routes protégées
 // ============================================================
 
-const PRIVATE_ROUTES = ['/articles', '/faq'];
+const PRIVATE_ROUTES = ['/articles', '/faq', '/profile'];
 const ADMIN_ROUTES = ['/admin'];
 const AUTH_ROUTES = ['/login', '/register'];
 
@@ -57,8 +57,14 @@ const authHook: Handle = async ({ event, resolve }) => {
   event.locals.userRole = null;
 
   if (user) {
-    const dbUser = await getUserBySupabaseId(user.id);
-    event.locals.userRole = dbUser?.role ?? 'USER';
+    const status = await getUserRoleBySupabaseId(user.id);
+    if (status && !status.enabled) {
+      await event.locals.supabase.auth.signOut();
+      event.locals.session = null;
+      event.locals.user = null;
+    } else {
+      event.locals.userRole = status?.role ?? 'USER';
+    }
   }
 
   return resolve(event);

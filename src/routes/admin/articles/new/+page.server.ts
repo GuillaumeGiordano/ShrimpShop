@@ -1,11 +1,13 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { createArticle } from '$lib/services/article.service';
+import { getProductCategories } from '$lib/services/product-category.service';
 import { createArticleSchema } from '$lib/schemas';
 import { sanitizeHtml } from '$lib/utils/sanitize';
 
 export const load: PageServerLoad = async () => {
-  return { meta: { title: 'Nouvel article' } };
+  const categories = await getProductCategories();
+  return { categories, meta: { title: 'Nouvel article' } };
 };
 
 export const actions: Actions = {
@@ -25,6 +27,7 @@ export const actions: Actions = {
     const article = await createArticle({
       ...result.data,
       content: sanitizeHtml(result.data.content),
+      categoryId: result.data.categoryId || undefined,
       imageUrl: result.data.imageUrl || undefined
     });
 

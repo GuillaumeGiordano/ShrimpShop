@@ -1,5 +1,6 @@
 import { db } from '$server/db';
 import { NotFoundError, ValidationError } from '$server/errors';
+import { deleteImage, extractStoragePath } from '$server/storage';
 import type { ProductDTO, ProductCardDTO, PaginatedResponse, ProductFilters } from '$types';
 import type { Prisma } from '@prisma/client';
 
@@ -199,6 +200,16 @@ export async function updateProduct(
     },
     include: { category: true }
   });
+
+  // Suppression de l'ancienne image si remplacée
+  if (data.image && data.image !== '' && existing.image && data.image !== existing.image) {
+    try {
+      await deleteImage('products', extractStoragePath(existing.image, 'products'));
+    } catch {
+      // Nettoyage non bloquant
+    }
+  }
+
   return toDTO(p);
 }
 
@@ -206,6 +217,15 @@ export async function deleteProduct(id: string): Promise<void> {
   const existing = await db.product.findUnique({ where: { id } });
   if (!existing) throw new NotFoundError('Produit');
   await db.product.delete({ where: { id } });
+
+  // Suppression de l'image associée
+  if (existing.image) {
+    try {
+      await deleteImage('products', extractStoragePath(existing.image, 'products'));
+    } catch {
+      // Nettoyage non bloquant
+    }
+  }
 }
 
 export async function decrementStock(

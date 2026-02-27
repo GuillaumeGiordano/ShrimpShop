@@ -1,12 +1,11 @@
 <script lang="ts">
   import ArticleCard from '$lib/components/ArticleCard.svelte';
-  import { formatDate, ARTICLE_CATEGORY_LABELS } from '$lib/utils/format';
+  import { formatDate } from '$lib/utils/format';
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
 
   const { article, similar, meta } = data;
-  const categoryLabel = ARTICLE_CATEGORY_LABELS[article.category] ?? article.category;
 </script>
 
 <svelte:head>
@@ -35,11 +34,13 @@
   <!-- Header -->
   <header class="mb-8">
     <div class="mb-4 flex items-center gap-3">
-      <span
-        class="rounded-full bg-aqua-100 px-3 py-1 text-xs font-semibold text-aqua-700 dark:bg-aqua-900/30 dark:text-aqua-300"
-      >
-        {categoryLabel}
-      </span>
+      {#if article.category}
+        <span
+          class="rounded-full bg-aqua-100 px-3 py-1 text-xs font-semibold text-aqua-700 dark:bg-aqua-900/30 dark:text-aqua-300"
+        >
+          {article.category.name}
+        </span>
+      {/if}
       <time class="text-sm text-muted-foreground">
         {formatDate(article.publishedAt ?? article.createdAt)}
       </time>

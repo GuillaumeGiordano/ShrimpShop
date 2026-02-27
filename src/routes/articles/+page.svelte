@@ -2,20 +2,14 @@
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
   import ArticleCard from '$lib/components/ArticleCard.svelte';
-  import { ARTICLE_CATEGORY_LABELS } from '$lib/utils/format';
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
 
-  const categories = [
-    { value: '', label: 'Toutes catégories' },
-    ...Object.entries(ARTICLE_CATEGORY_LABELS).map(([value, label]) => ({ value, label }))
-  ];
-
-  function setCategory(cat: string) {
+  function setCategory(categoryId: string) {
     const params = new URLSearchParams($page.url.searchParams);
-    if (cat) params.set('category', cat);
-    else params.delete('category');
+    if (categoryId) params.set('categoryId', categoryId);
+    else params.delete('categoryId');
     params.delete('page');
     goto(`?${params.toString()}`);
   }
@@ -59,15 +53,24 @@
   <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
     <!-- Catégories -->
     <div class="flex flex-wrap gap-2">
-      {#each categories as cat}
+      <button
+        onclick={() => setCategory('')}
+        class="rounded-full px-4 py-1.5 text-sm font-medium transition-all
+          {(data.filters.categoryId ?? '') === ''
+          ? 'bg-primary text-primary-foreground shadow-sm'
+          : 'border border-border bg-background hover:bg-muted'}"
+      >
+        Toutes catégories
+      </button>
+      {#each data.categories as cat}
         <button
-          onclick={() => setCategory(cat.value)}
+          onclick={() => setCategory(cat.id)}
           class="rounded-full px-4 py-1.5 text-sm font-medium transition-all
-            {(data.filters.category ?? '') === cat.value
+            {data.filters.categoryId === cat.id
             ? 'bg-primary text-primary-foreground shadow-sm'
             : 'border border-border bg-background hover:bg-muted'}"
         >
-          {cat.label}
+          {cat.name}
         </button>
       {/each}
     </div>

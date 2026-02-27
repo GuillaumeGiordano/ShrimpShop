@@ -49,24 +49,11 @@ export const contactSchema = z.object({
 // Article Schemas
 // ============================================================
 
-const articleCategories = [
-  'NEOCARIDINA',
-  'CARIDINA',
-  'BREEDING',
-  'WATER_QUALITY',
-  'DISEASES',
-  'EQUIPMENT',
-  'FEEDING',
-  'GENERAL'
-] as const;
-
-export const articleCategoryEnum = z.enum(articleCategories);
-
 export const createArticleSchema = z.object({
   title: z.string().min(3, 'Titre requis').max(200),
   excerpt: z.string().min(10, 'Résumé requis').max(500),
   content: z.string().min(10, 'Contenu requis'),
-  category: articleCategoryEnum,
+  categoryId: z.string().optional().or(z.literal('')),
   imageUrl: z.string().url('URL invalide').optional().or(z.literal('')),
   status: z.enum(['DRAFT', 'PUBLISHED']).default('DRAFT'),
   published: z.coerce.boolean().default(false)
@@ -75,7 +62,7 @@ export const createArticleSchema = z.object({
 export const updateArticleSchema = createArticleSchema.partial();
 
 export const articleFiltersSchema = z.object({
-  category: articleCategoryEnum.optional(),
+  categoryId: z.string().optional(),
   search: z.string().optional(),
   published: z.coerce.boolean().optional(),
   ...paginationSchema.shape
@@ -90,7 +77,8 @@ export const createPhotoSchema = z.object({
   description: z.string().max(500).optional().or(z.literal('')),
   imageUrl: z.string().url('URL image invalide'),
   altText: z.string().max(200).optional().or(z.literal('')),
-  order: z.coerce.number().int().nonnegative().default(0)
+  order: z.coerce.number().int().nonnegative().default(0),
+  categoryId: z.string().optional().or(z.literal(''))
 });
 
 export const updatePhotoSchema = createPhotoSchema.partial();
@@ -99,19 +87,8 @@ export const updatePhotoSchema = createPhotoSchema.partial();
 // FAQ Schemas
 // ============================================================
 
-const faqCategories = [
-  'GENERAL',
-  'SHIPPING',
-  'CARE',
-  'WATER_PARAMETERS',
-  'COMPATIBILITY',
-  'PAYMENT'
-] as const;
-
-export const faqCategoryEnum = z.enum(faqCategories);
-
 export const createFaqSchema = z.object({
-  category: faqCategoryEnum,
+  categoryId: z.string().optional().or(z.literal('')),
   question: z.string().min(5, 'Question requise').max(500),
   answer: z.string().min(10, 'Réponse requise').max(5000),
   order: z.coerce.number().int().nonnegative().default(0)
@@ -120,7 +97,7 @@ export const createFaqSchema = z.object({
 export const updateFaqSchema = createFaqSchema.partial();
 
 export const faqFiltersSchema = z.object({
-  category: faqCategoryEnum.optional(),
+  categoryId: z.string().optional(),
   search: z.string().optional(),
   ...paginationSchema.shape
 });
@@ -131,6 +108,10 @@ export const faqFiltersSchema = z.object({
 
 export const updateUserRoleSchema = z.object({
   role: z.enum(['USER', 'ADMIN'])
+});
+
+export const updateUserEnabledSchema = z.object({
+  enabled: z.enum(['true', 'false']).transform((v) => v === 'true')
 });
 
 export const userFiltersSchema = z.object({
@@ -194,6 +175,32 @@ export const checkoutSchema = z.object({
 });
 
 // ============================================================
+// Profile Schemas
+// ============================================================
+
+export const updateNameSchema = z.object({
+  name: z.string().min(2, 'Nom trop court (min 2 caractères)').max(100)
+});
+
+export const updatePasswordSchema = z
+  .object({
+    password: z
+      .string()
+      .min(8, 'Min 8 caractères')
+      .regex(/[A-Z]/, 'Doit contenir une majuscule')
+      .regex(/[0-9]/, 'Doit contenir un chiffre'),
+    confirmPassword: z.string()
+  })
+  .refine((d) => d.password === d.confirmPassword, {
+    message: 'Les mots de passe ne correspondent pas',
+    path: ['confirmPassword']
+  });
+
+export const forgotPasswordSchema = z.object({
+  email: z.string().email('Email invalide')
+});
+
+// ============================================================
 // Inferred types
 // ============================================================
 
@@ -209,6 +216,7 @@ export type CreateFaqInput = z.infer<typeof createFaqSchema>;
 export type UpdateFaqInput = z.infer<typeof updateFaqSchema>;
 export type FaqFiltersInput = z.infer<typeof faqFiltersSchema>;
 export type UpdateUserRoleInput = z.infer<typeof updateUserRoleSchema>;
+export type UpdateUserEnabledInput = z.infer<typeof updateUserEnabledSchema>;
 export type UserFiltersInput = z.infer<typeof userFiltersSchema>;
 export type CreateProductCategoryInput = z.infer<typeof createProductCategorySchema>;
 export type UpdateProductCategoryInput = z.infer<typeof updateProductCategorySchema>;
@@ -216,3 +224,6 @@ export type CreateProductInput = z.infer<typeof createProductSchema>;
 export type UpdateProductInput = z.infer<typeof updateProductSchema>;
 export type CartItemInput = z.infer<typeof cartItemSchema>;
 export type CheckoutInput = z.infer<typeof checkoutSchema>;
+export type UpdateNameInput = z.infer<typeof updateNameSchema>;
+export type UpdatePasswordInput = z.infer<typeof updatePasswordSchema>;
+export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;

@@ -4,7 +4,8 @@ import { upsertUser } from '$lib/services/user.service';
 
 export const GET: RequestHandler = async ({ url, locals }) => {
   const code = url.searchParams.get('code');
-  const redirectTo = url.searchParams.get('redirectTo') ?? '/articles';
+  const next = url.searchParams.get('next');
+  const redirectTo = next ?? url.searchParams.get('redirectTo') ?? '/articles';
 
   if (!code) {
     throw redirect(303, '/login?error=missing_code');

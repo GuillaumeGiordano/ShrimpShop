@@ -1,7 +1,7 @@
 import { fail } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
-import { getUsers, updateUserRole, deleteUser } from '$lib/services/user.service';
-import { userFiltersSchema, updateUserRoleSchema } from '$lib/schemas';
+import { getUsers, updateUserRole, updateUserEnabled, deleteUser } from '$lib/services/user.service';
+import { userFiltersSchema, updateUserRoleSchema, updateUserEnabledSchema } from '$lib/schemas';
 import { formatApiError } from '$server/errors';
 
 export const load: PageServerLoad = async ({ url }) => {
@@ -23,6 +23,23 @@ export const actions: Actions = {
 
     try {
       await updateUserRole(id, result.data.role);
+      return { success: true };
+    } catch (err) {
+      return fail(400, formatApiError(err));
+    }
+  },
+
+  updateEnabled: async ({ request }) => {
+    const formData = await request.formData();
+    const id = formData.get('id') as string;
+    const result = updateUserEnabledSchema.safeParse({ enabled: formData.get('enabled') });
+
+    if (!result.success) {
+      return fail(422, { success: false, error: 'Valeur invalide' });
+    }
+
+    try {
+      await updateUserEnabled(id, result.data.enabled);
       return { success: true };
     } catch (err) {
       return fail(400, formatApiError(err));

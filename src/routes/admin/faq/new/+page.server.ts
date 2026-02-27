@@ -1,10 +1,12 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { createFaq } from '$lib/services/faq.service';
+import { getProductCategories } from '$lib/services/product-category.service';
 import { createFaqSchema } from '$lib/schemas';
 
 export const load: PageServerLoad = async () => {
-  return {};
+  const categories = await getProductCategories();
+  return { categories };
 };
 
 export const actions: Actions = {
@@ -20,7 +22,10 @@ export const actions: Actions = {
       });
     }
 
-    await createFaq(result.data);
+    await createFaq({
+      ...result.data,
+      categoryId: result.data.categoryId || undefined
+    });
     throw redirect(303, '/admin/faq?created=true');
   }
 };
